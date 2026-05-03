@@ -26,6 +26,6 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 export async function DELETE(_: NextRequest, { params }: { params: { id: string } }) {
   const session = await requireAdmin();
   if (!session) return NextResponse.json({ error: "Acces admin requis." }, { status: 403 });
-  await prisma.document.delete({ where: { id: params.id } });
+  await prisma.document.delete({ where: { id: params.id } }).catch(() => null);
   return NextResponse.json({ ok: true });
 }

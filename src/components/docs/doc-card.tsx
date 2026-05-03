@@ -18,7 +18,7 @@ export function DocCard({ document, onPreview }: { document: any; onPreview?: (i
     window.location.href = `/api/documents/${document.id}/download`;
   }
   return (
-    <Card className="flex h-full flex-col">
+    <Card className="flex h-full flex-col" data-testid="doc-card">
       <CardHeader>
         <div className="mb-2 flex flex-wrap gap-2">
           <Badge>{document.type.replace("_", " ")}</Badge>

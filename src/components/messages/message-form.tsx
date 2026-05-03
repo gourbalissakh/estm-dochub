@@ -12,8 +12,12 @@ export function MessageForm({ filieres }: { filieres: any[] }) {
   const [busy, setBusy] = useState(false);
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const nextContent = String(formData.get("content") ?? "").trim();
+    const nextFiliereId = String(formData.get("filiereId") ?? filiereId);
+    if (!nextContent) return;
     setBusy(true);
-    const res = await fetch("/api/messages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ content, filiereId }) });
+    const res = await fetch("/api/messages", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ content: nextContent, filiereId: nextFiliereId }) });
     setBusy(false);
     if (res.ok) {
       setContent("");
@@ -23,11 +27,11 @@ export function MessageForm({ filieres }: { filieres: any[] }) {
   return (
     <form onSubmit={submit} className="mb-8 rounded-xl border border-violet-100 bg-white p-4 dark:border-violet-900 dark:bg-[#1E1830]">
       <div className="grid gap-3 md:grid-cols-[1fr_220px_auto]">
-        <Textarea value={content} maxLength={500} onChange={(e) => setContent(e.target.value)} placeholder="Partager une question, une ressource ou une annonce..." />
-        <select className="h-10 rounded-md border border-violet-200 bg-white px-3 dark:bg-[#14101F]" value={filiereId} onChange={(e) => setFiliereId(e.target.value)}>
+        <Textarea name="content" value={content} maxLength={500} onInput={(e) => setContent(e.currentTarget.value)} onChange={(e) => setContent(e.target.value)} placeholder="Partager une question, une ressource ou une annonce..." />
+        <select name="filiereId" className="h-10 rounded-md border border-violet-200 bg-white px-3 dark:bg-[#14101F]" value={filiereId} onChange={(e) => setFiliereId(e.target.value)}>
           {filieres.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
         </select>
-        <Button disabled={busy || !content.trim()}>Publier</Button>
+        <Button disabled={busy}>Publier</Button>
       </div>
       <div className="mt-2 text-xs text-[#8B7FA8]">{content.length}/500</div>
     </form>
