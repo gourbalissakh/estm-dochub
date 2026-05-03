@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum UserStatus {
+  PENDING
+  VALIDATED
+  BLOCKED
+}
+
+enum Sector {
+  TECH
+  MGMT
+}
+
+enum Niveau {
+  L1
+  L2
+  L3
+  M1
+  M2
+}
+
+enum DocumentType {
+  COURS
+  ANCIEN_SUJET
+  TP
+  TD
+  AUTRE
+}
+
+model User {
+  id               String       @id @default(cuid())
+  email            String       @unique
+  passwordHash     String
+  firstName        String
+  lastName         String
+  studentNumber    String?
+  role             Role         @default(STUDENT)
+  status           UserStatus   @default(PENDING)
+  filiereId        String?
+  filiere          Filiere?     @relation(fields: [filiereId], references: [id])
+  niveau           Niveau?
+  anneeAcademique  String?
+  avatarUrl        String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  documents        Document[]
+  messages         Message[]
+  favorites        Favorite[]
+  downloads        Download[]
+}
+
+model Filiere {
+  id          String     @id @default(cuid())
+  name        String     @unique
+  code        String     @unique
+  sector      Sector
+  icon        String
+  description String
+  users       User[]
+  documents   Document[]
+  messages    Message[]
+}
+
+model Document {
+  id                String       @id @default(cuid())
+  title             String
+  description       String
+  filePath          String
+  fileSize          Int
+  fileType          String
+  filiereId         String
+  filiere           Filiere      @relation(fields: [filiereId], references: [id])
+  type              DocumentType
+  niveau            Niveau
+  anneeAcademique   String
+  matiere           String
+  uploaderId        String
+  uploader          User         @relation(fields: [uploaderId], references: [id])
+  downloadCount     Int          @default(0)
+  isVisible         Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  favorites         Favorite[]
+  downloads         Download[]
+}
+
+model Message {
+  id         String   @id @default(cuid())
+  content    String   @db.VarChar(500)
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  filiereId  String
+  filiere    Filiere  @relation(fields: [filiereId], references: [id])
+  isVisible  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+}
+
+model Favorite {
+  userId     String
+  documentId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+
+  @@id([userId, documentId])
+}
+
+model Download {
+  id         String   @id @default(cuid())
+  userId     String?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  documentId String
+  document   Document @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+}

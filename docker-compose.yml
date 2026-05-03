@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: estm-dochub-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: estm
+      POSTGRES_PASSWORD: estm
+      POSTGRES_DB: estm_dochub
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+
+volumes:
+  postgres-data:
