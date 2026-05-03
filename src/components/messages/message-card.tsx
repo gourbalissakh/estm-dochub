@@ -1,10 +1,18 @@
 "use client";
 
-import DOMPurify from "isomorphic-dompurify";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { initials } from "@/lib/utils";
 
 export function MessageCard({ message }: { message: any }) {
+  const [safeContent, setSafeContent] = useState(message.content);
+
+  useEffect(() => {
+    import("isomorphic-dompurify").then((mod) => {
+      setSafeContent(mod.default.sanitize(message.content));
+    });
+  }, [message.content]);
+
   return (
     <Card>
       <CardContent className="pt-5">
@@ -14,7 +22,7 @@ export function MessageCard({ message }: { message: any }) {
           </div>
           <div>
             <div className="text-sm font-semibold">{message.author?.firstName} {message.author?.lastName} · {message.filiere?.code}</div>
-            <p className="mt-2 text-[#4B3F6B] dark:text-violet-200" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(message.content) }} />
+            <p className="mt-2 text-[#4B3F6B] dark:text-violet-200" dangerouslySetInnerHTML={{ __html: safeContent }} />
           </div>
         </div>
       </CardContent>
