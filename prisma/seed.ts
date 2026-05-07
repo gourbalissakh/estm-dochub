@@ -7,8 +7,6 @@ import {
     UserStatus,
 } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-import fs from 'node:fs/promises'
-import path from 'node:path'
 
 const prisma = new PrismaClient()
 
@@ -99,46 +97,7 @@ const filieres = [
     ],
 ] as const
 
-const samplePdf = `%PDF-1.4
-1 0 obj
-<< /Type /Catalog /Pages 2 0 R >>
-endobj
-2 0 obj
-<< /Type /Pages /Kids [3 0 R] /Count 1 >>
-endobj
-3 0 obj
-<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
-endobj
-4 0 obj
-<< /Length 73 >>
-stream
-BT
-/F1 18 Tf
-72 720 Td
-(ESTM DocHub - document de demonstration) Tj
-ET
-endstream
-endobj
-5 0 obj
-<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
-endobj
-xref
-0 6
-0000000000 65535 f
-0000000009 00000 n
-0000000058 00000 n
-0000000115 00000 n
-0000000241 00000 n
-0000000364 00000 n
-trailer
-<< /Size 6 /Root 1 0 R >>
-startxref
-434
-%%EOF`
-
 async function main() {
-    await fs.mkdir(path.join(process.cwd(), 'uploads'), { recursive: true })
-
     await prisma.download.deleteMany()
     await prisma.favorite.deleteMany()
     await prisma.message.deleteMany()
@@ -192,14 +151,11 @@ async function main() {
 
     for (let index = 0; index < 12; index += 1) {
         const filiere = createdFilieres[index]
-        const fileName = `sample-${filiere.code.toLowerCase()}.pdf`
-        const filePath = path.join('uploads', fileName)
-        await fs.writeFile(path.join(process.cwd(), filePath), samplePdf)
         await prisma.document.create({
             data: {
                 title: `${['Cours', 'Ancien sujet', 'TP', 'TD'][index % 4]} ${filiere.code}`,
                 description: `Ressource academique de demonstration pour ${filiere.name}.`,
-                filePath,
+                filePath: 'placeholder://no-file',
                 fileSize: 96,
                 fileType: 'application/pdf',
                 filiereId: filiere.id,
@@ -243,5 +199,5 @@ main()
     .catch(async (error) => {
         console.error(error)
         await prisma.$disconnect()
-        process.exit(1)
+        throw error
     })
