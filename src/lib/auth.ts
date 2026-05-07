@@ -68,6 +68,11 @@ export function getCurrentSession() {
 export async function requireValidatedUser() {
   const session = await getCurrentSession();
   if (!session?.user || session.user.status !== UserStatus.VALIDATED) return null;
+  const exists = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, status: true },
+  });
+  if (!exists || exists.status !== UserStatus.VALIDATED) return null;
   return session;
 }
 

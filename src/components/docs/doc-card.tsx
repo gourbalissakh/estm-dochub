@@ -1,41 +1,106 @@
 "use client";
 
-import { Download, Eye, Heart } from "lucide-react";
+import { Download, Eye, FileText, Heart } from "lucide-react";
 import { signIn, useSession } from "next-auth/react";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { formatBytes } from "@/lib/utils";
 
-export function DocCard({ document, onPreview }: { document: any; onPreview?: (id: string) => void }) {
+const typeColors: Record<string, "default" | "accent" | "warn" | "success" | "danger"> = {
+  COURS: "default",
+  TP: "success",
+  TD: "accent",
+  ANCIEN_SUJET: "warn",
+  AUTRE: "default",
+};
+
+export function DocCard({
+  document,
+  onPreview,
+}: {
+  document: any;
+  onPreview?: (id: string) => void;
+}) {
   const { data: session } = useSession();
+  const [favored, setFavored] = useState(false);
+
   async function favorite() {
     if (!session) return signIn(undefined, { callbackUrl: "/documents" });
+    setFavored((v) => !v);
     await fetch(`/api/favorites/${document.id}`, { method: "POST" });
   }
+
   function download() {
     if (!session) return signIn(undefined, { callbackUrl: "/documents" });
     window.location.href = `/api/documents/${document.id}/download`;
   }
+
   return (
-    <Card className="flex h-full flex-col" data-testid="doc-card">
-      <CardHeader>
-        <div className="mb-2 flex flex-wrap gap-2">
-          <Badge>{document.type.replace("_", " ")}</Badge>
-          <Badge className="bg-cyan-100 text-cyan-900">{document.niveau}</Badge>
+    <Card
+      className="group/doc flex h-full flex-col hover:-translate-y-1 hover:border-[var(--primary)]/30 hover:shadow-[var(--shadow-md)]"
+      data-testid="doc-card"
+    >
+      <div className="relative flex items-start gap-3 p-5">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[image:linear-gradient(135deg,#ede9fe,#cffafe)] text-[var(--primary)] dark:bg-[image:linear-gradient(135deg,#1f1640,#0e3a47)] dark:text-[var(--primary)]">
+          <FileText size={20} />
         </div>
-        <CardTitle className="line-clamp-2">{document.title}</CardTitle>
-        <p className="text-sm text-[#8B7FA8]">{document.filiere?.name} · {document.matiere}</p>
-      </CardHeader>
-      <CardContent className="flex flex-1 flex-col">
-        <p className="line-clamp-3 flex-1 text-sm text-[#4B3F6B] dark:text-violet-200">{document.description}</p>
-        <div className="mt-4 text-xs text-[#8B7FA8]">{formatBytes(document.fileSize)} · {document.downloadCount} telechargements</div>
-        <div className="mt-4 flex gap-2">
-          <Button className="flex-1" size="sm" onClick={download}><Download size={16} /> Telecharger</Button>
-          <Button variant="outline" size="icon" onClick={() => onPreview?.(document.id)} aria-label="Apercu"><Eye size={16} /></Button>
-          <Button variant="ghost" size="icon" onClick={favorite} aria-label="Favori"><Heart size={16} /></Button>
+        <div className="min-w-0 flex-1">
+          <div className="mb-2 flex flex-wrap gap-1.5">
+            <Badge variant={typeColors[document.type] ?? "default"}>
+              {document.type.replace("_", " ")}
+            </Badge>
+            <Badge variant="outline">{document.niveau}</Badge>
+          </div>
+          <h3 className="line-clamp-2 text-base font-semibold leading-snug tracking-tight text-[var(--fg)]">
+            {document.title}
+          </h3>
+          <p className="mt-1 truncate text-xs text-[var(--fg-muted)]">
+            {document.filiere?.name} · {document.matiere}
+          </p>
         </div>
-      </CardContent>
+        <button
+          onClick={favorite}
+          aria-label="Favori"
+          className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg transition ${
+            favored
+              ? "bg-rose-500/10 text-rose-500"
+              : "text-[var(--fg-muted)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]"
+          }`}
+        >
+          <Heart size={15} className={favored ? "fill-current" : ""} />
+        </button>
+      </div>
+
+      <div className="flex flex-1 flex-col px-5 pb-5">
+        <p className="line-clamp-3 flex-1 text-sm leading-relaxed text-[var(--fg-soft)]">
+          {document.description}
+        </p>
+
+        <div className="mt-4 flex items-center gap-3 text-[11px] font-medium text-[var(--fg-muted)]">
+          <span className="rounded-md bg-[var(--bg-soft)] px-2 py-0.5 ring-1 ring-inset ring-[var(--border)]">
+            {formatBytes(document.fileSize)}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Download size={11} /> {document.downloadCount}
+          </span>
+        </div>
+
+        <div className="mt-4 flex items-center gap-2">
+          <Button className="flex-1" size="sm" onClick={download}>
+            <Download size={14} /> Telecharger
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => onPreview?.(document.id)}
+            aria-label="Apercu"
+          >
+            <Eye size={15} />
+          </Button>
+        </div>
+      </div>
     </Card>
   );
 }

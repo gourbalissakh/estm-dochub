@@ -39,6 +39,7 @@ e2e/document-e2e.pdf
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel

@@ -1,0 +1,8 @@
+uploads/
+test-results/
+e2e/
+tests/
+*.log
+docker-compose.yml
+playwright.config.ts
+vitest.config.ts
