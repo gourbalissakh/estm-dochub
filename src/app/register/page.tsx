@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, ArrowRight, Check, GraduationCap, Sparkles } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Check, GraduationCap, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ export default function RegisterPage() {
   const [filieres, setFilieres] = useState<any[]>([]);
   const [success, setSuccess] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [form, setForm] = useState<Record<string, string>>({
     anneeAcademique: "2025-2026",
     niveau: "L1",
@@ -23,7 +24,42 @@ export default function RegisterPage() {
       .then((d) => setFilieres(d.filieres));
   }, []);
 
+  function validateForm(): string | null {
+    if (!form.firstName || form.firstName.trim().length < 2)
+      return "Le prenom doit contenir au moins 2 caracteres.";
+    if (!form.lastName || form.lastName.trim().length < 2)
+      return "Le nom doit contenir au moins 2 caracteres.";
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      return "Email invalide.";
+    if (
+      !form.password ||
+      form.password.length < 8 ||
+      !/[A-Z]/.test(form.password) ||
+      !/[0-9]/.test(form.password)
+    )
+      return "Le mot de passe doit faire au moins 8 caracteres, avec une majuscule et un chiffre.";
+    if (form.avatarUrl && !/^https?:\/\/.+/.test(form.avatarUrl))
+      return "L'URL de l'avatar n'est pas valide.";
+    return null;
+  }
+
+  function goToStep2() {
+    const err = validateForm();
+    if (err) {
+      setError(err);
+      return;
+    }
+    setError(null);
+    setStep(2);
+  }
+
   async function submit() {
+    setError(null);
+    const err = validateForm();
+    if (err) {
+      setError(err);
+      return;
+    }
     setBusy(true);
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -34,7 +70,23 @@ export default function RegisterPage() {
       }),
     });
     setBusy(false);
-    if (res.ok) setSuccess(true);
+    if (res.ok) {
+      setSuccess(true);
+      return;
+    }
+    if (res.status === 409) {
+      setError("Cet email est deja utilise.");
+      return;
+    }
+    if (res.status === 429) {
+      setError("Trop de tentatives. Reessayez dans une minute.");
+      return;
+    }
+    if (res.status === 400) {
+      setError("Donnees invalides. Verifiez vos informations.");
+      return;
+    }
+    setError("Une erreur est survenue. Reessayez.");
   }
 
   if (success) {
@@ -105,6 +157,12 @@ export default function RegisterPage() {
             </div>
 
             <div className="grid gap-4">
+              {error && (
+                <div className="flex items-start gap-2 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-500">
+                  <AlertCircle size={16} className="mt-0.5 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
               {step === 1 ? (
                 <>
                   <div className="grid gap-3 sm:grid-cols-2">
@@ -131,14 +189,31 @@ export default function RegisterPage() {
                       setForm({ ...form, email: e.target.value })
                     }
                   />
-                  <Input
-                    type="password"
-                    placeholder="Mot de passe (8+ caracteres)"
-                    value={form.password ?? ""}
-                    onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
-                    }
-                  />
+                  <div>
+                    <Input
+                      type="password"
+                      placeholder="Mot de passe"
+                      value={form.password ?? ""}
+                      onChange={(e) =>
+                        setForm({ ...form, password: e.target.value })
+                      }
+                    />
+                    <div className="mt-2 flex flex-col gap-1 text-xs">
+                      {[
+                        { ok: (form.password ?? "").length >= 8, label: "Au moins 8 caracteres" },
+                        { ok: /[A-Z]/.test(form.password ?? ""), label: "Une majuscule" },
+                        { ok: /[0-9]/.test(form.password ?? ""), label: "Un chiffre" },
+                      ].map((rule) => (
+                        <span
+                          key={rule.label}
+                          className={`inline-flex items-center gap-1.5 ${rule.ok ? "text-emerald-500" : "text-[var(--fg-soft)]"}`}
+                        >
+                          <Check size={12} className={rule.ok ? "opacity-100" : "opacity-30"} />
+                          {rule.label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   <Input
                     placeholder="URL avatar (optionnel)"
                     value={form.avatarUrl ?? ""}
@@ -146,7 +221,7 @@ export default function RegisterPage() {
                       setForm({ ...form, avatarUrl: e.target.value })
                     }
                   />
-                  <Button size="lg" onClick={() => setStep(2)}>
+                  <Button size="lg" onClick={goToStep2}>
                     Continuer <ArrowRight size={16} />
                   </Button>
                 </>
