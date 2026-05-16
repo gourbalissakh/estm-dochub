@@ -13,7 +13,6 @@ const noisyConsolePatterns = [
 ];
 
 test.afterAll(async () => {
-  await prisma.message.deleteMany({ where: { content: { contains: "Message E2E" } } });
   const docs = await prisma.document.findMany({ where: { title: { startsWith: "Document E2E" } } });
   await prisma.document.deleteMany({ where: { title: { startsWith: "Document E2E" } } });
   await Promise.all(
@@ -42,9 +41,9 @@ test.afterEach(async ({ page }) => {
 async function login(page: Page, email: string, password: string) {
   await page.goto("/login");
   await page.getByPlaceholder("admin@estm.sn").fill(email);
-  await page.getByPlaceholder("Mot de passe").fill(password);
+  await page.getByPlaceholder("********").fill(password);
   await page.getByRole("button", { name: "Se connecter" }).click();
-  await page.waitForURL("**/profile", { timeout: 15_000 });
+  await page.waitForURL(/\/(admin|documents)$/, { timeout: 15_000 });
 }
 
 async function goto(page: Page, url: string) {
@@ -54,7 +53,7 @@ async function goto(page: Page, url: string) {
 }
 
 test("parcours public et aperçu PDF", async ({ page, request }) => {
-  for (const url of ["/", "/filieres", "/documents", "/messages", "/login", "/register"]) {
+  for (const url of ["/", "/filieres", "/documents", "/login", "/register"]) {
     await goto(page, url);
   }
 
@@ -70,7 +69,7 @@ test("parcours public et aperçu PDF", async ({ page, request }) => {
   expect(preview.headers()["content-type"]).toContain("application/pdf");
 });
 
-test("connexion étudiant, favori, téléchargement et message", async ({ page }) => {
+test("connexion étudiant, favori, téléchargement", async ({ page }) => {
   await login(page, "etudiant1@estm.sn", "Student123!");
 
   await goto(page, "/documents");
@@ -80,11 +79,6 @@ test("connexion étudiant, favori, téléchargement et message", async ({ page }
   await page.getByTestId("doc-card").first().getByRole("button", { name: "Telecharger" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toContain(".pdf");
-
-  await goto(page, "/messages");
-  await page.getByPlaceholder("Partager une question, une ressource ou une annonce...").fill(`Message E2E ${Date.now()}`);
-  await page.getByRole("button", { name: "Publier" }).click();
-  await expect(page.getByText("Message E2E")).toBeVisible();
 });
 
 test("admin dashboard, modération et upload chunké", async ({ page }) => {

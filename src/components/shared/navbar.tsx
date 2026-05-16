@@ -13,7 +13,6 @@ const links = [
     ['Accueil', '/'],
     ['Filieres', '/filieres'],
     ['Documents', '/documents'],
-    ['Messages', '/messages'],
 ] as const
 
 export function Navbar() {

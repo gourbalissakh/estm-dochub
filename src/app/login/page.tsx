@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Eye, EyeOff, GraduationCap, Lock, Mail } from "lucide-react";
-import { signIn } from "next-auth/react";
+import { getSession, signIn } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -25,9 +25,15 @@ export default function LoginPage() {
       password: form.get("password"),
       redirect: false,
     });
-    setBusy(false);
-    if (res?.ok) router.push("/profile");
-    else setError("Identifiants invalides ou compte pas encore valide.");
+    if (!res?.ok) {
+      setBusy(false);
+      setError("Identifiants invalides ou compte pas encore valide.");
+      return;
+    }
+    const session = await getSession();
+    const target = session?.user?.role === "ADMIN" ? "/admin" : "/documents";
+    router.push(target);
+    router.refresh();
   }
 
   return (

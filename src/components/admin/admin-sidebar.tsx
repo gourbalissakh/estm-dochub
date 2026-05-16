@@ -1,14 +1,13 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { BarChart3, FileText, MessageSquare, Sparkles, Upload, Users } from "lucide-react";
+import { BarChart3, FileText, Sparkles, Upload, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const links = [
   ["Dashboard", "/admin", BarChart3],
   ["Documents", "/admin/documents", FileText],
-  ["Messages", "/admin/messages", MessageSquare],
   ["Etudiants", "/admin/students", Users],
   ["Ajouter document", "/admin/upload", Upload],
 ] as const;

@@ -1,4 +1,4 @@
-import { GraduationCap, Heart, Mail, Send } from 'lucide-react'
+import { GraduationCap, Heart, Mail } from 'lucide-react'
 import Link from 'next/link'
 
 export function Footer() {
@@ -9,7 +9,7 @@ export function Footer() {
             'Plateforme',
             ['Documents', '/documents'],
             ['Filieres', '/filieres'],
-            ['Messages', '/messages'],
+            ['Deposer', '/documents/upload'],
         ],
         [
             'Ressources',
@@ -21,13 +21,13 @@ export function Footer() {
             'ESTM Dakar',
             ['Filiere technique', '/filieres?sector=TECH'],
             ['Filiere gestion', '/filieres?sector=MGMT'],
-            ['Deposer', '/documents/upload'],
+            ['Travaux Diriges', '/documents?type=TD'],
         ],
         [
             'Support',
             ['Profil', '/profile'],
             ['Connexion', '/login'],
-            ['Contact', '/messages'],
+            ['Inscription', '/register'],
         ],
     ]
     return (
@@ -56,13 +56,6 @@ export function Footer() {
                                 aria-label="Email"
                             >
                                 <Mail size={15} />
-                            </a>
-                            <a
-                                href="/messages"
-                                className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--border)] bg-[var(--bg-elev)] text-[var(--fg-soft)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                                aria-label="Messages"
-                            >
-                                <Send size={15} />
                             </a>
                         </div>
                     </div>

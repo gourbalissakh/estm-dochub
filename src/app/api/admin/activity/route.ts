@@ -11,16 +11,11 @@ export async function GET() {
             { error: 'Acces admin requis.' },
             { status: 403 },
         )
-    const [documents, messages, downloads] = await Promise.all([
+    const [documents, downloads] = await Promise.all([
         prisma.document.findMany({
             take: 5,
             orderBy: { createdAt: 'desc' },
             select: { title: true, createdAt: true },
-        }),
-        prisma.message.findMany({
-            take: 5,
-            orderBy: { createdAt: 'desc' },
-            select: { content: true, createdAt: true },
         }),
         prisma.download.findMany({
             take: 5,
@@ -32,11 +27,6 @@ export async function GET() {
         ...documents.map((item) => ({
             type: 'Document',
             label: item.title,
-            createdAt: item.createdAt,
-        })),
-        ...messages.map((item) => ({
-            type: 'Message',
-            label: item.content,
             createdAt: item.createdAt,
         })),
         ...downloads.map((item) => ({

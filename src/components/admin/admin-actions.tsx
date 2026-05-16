@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
-export function VisibilityButton({ id, visible, kind }: { id: string; visible: boolean; kind: "documents" | "messages" }) {
+export function VisibilityButton({ id, visible, kind }: { id: string; visible: boolean; kind: "documents" }) {
   const router = useRouter();
   const [isVisible, setIsVisible] = useState(visible);
   const [busy, setBusy] = useState(false);
@@ -21,7 +21,7 @@ export function VisibilityButton({ id, visible, kind }: { id: string; visible: b
   return <Button type="button" variant="outline" size="sm" disabled={busy} onClick={toggle}>{isVisible ? "Masquer" : "Afficher"}</Button>;
 }
 
-export function DeleteButton({ id, kind }: { id: string; kind: "documents" | "messages" }) {
+export function DeleteButton({ id, kind }: { id: string; kind: "documents" }) {
   const router = useRouter();
   async function remove() {
     await fetch(`/api/${kind}/${id}`, { method: "DELETE" });

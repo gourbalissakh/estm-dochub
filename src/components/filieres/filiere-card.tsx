@@ -1,10 +1,44 @@
 import { Badge } from '@/components/ui/badge'
 import { Card } from '@/components/ui/card'
-import { ArrowRight, BookOpen, FileText, Users } from 'lucide-react'
+import {
+    ArrowRight,
+    Brain,
+    Briefcase,
+    Calculator,
+    Code,
+    CreditCard,
+    FileText,
+    Image as ImageIcon,
+    Megaphone,
+    Network,
+    Scale,
+    Shield,
+    Target,
+    Users,
+    Zap,
+    type LucideIcon,
+} from 'lucide-react'
 import Link from 'next/link'
+
+const iconMap: Record<string, LucideIcon> = {
+    Network,
+    Code,
+    Shield,
+    CreditCard,
+    Image: ImageIcon,
+    Zap,
+    Brain,
+    Briefcase,
+    Calculator,
+    Users,
+    Target,
+    Megaphone,
+    Scale,
+}
 
 export function FiliereCard({ filiere }: { filiere: any }) {
     const isTech = filiere.sector === 'TECH'
+    const Icon = iconMap[filiere.icon] ?? FileText
     return (
         <Link href={`/documents?filiere=${filiere.id}`} className="block h-full">
             <Card className="group/card relative h-full overflow-hidden hover:-translate-y-1 hover:border-[var(--primary)]/40 hover:shadow-[var(--shadow-md)]">
@@ -22,7 +56,7 @@ export function FiliereCard({ filiere }: { filiere: any }) {
                                     : 'bg-[image:linear-gradient(135deg,#7c3aed,#6d28d9)]'
                             }`}
                         >
-                            <BookOpen size={20} />
+                            <Icon size={20} />
                         </div>
                         <Badge variant={isTech ? 'accent' : 'default'}>
                             {isTech ? 'Technique' : 'Gestion'}

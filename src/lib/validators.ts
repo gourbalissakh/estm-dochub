@@ -23,11 +23,6 @@ export const documentQuerySchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
 })
 
-export const messageSchema = z.object({
-    content: z.string().trim().min(1).max(500),
-    filiereId: z.string().min(1),
-})
-
 export const studentStatusSchema = z.object({
     status: z.nativeEnum(UserStatus),
 })

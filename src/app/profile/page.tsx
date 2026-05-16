@@ -8,7 +8,6 @@ import {
     Download,
     Heart,
     Mail,
-    MessageCircle,
     Sparkles,
 } from 'lucide-react'
 import { redirect } from 'next/navigation'
@@ -16,7 +15,7 @@ import { redirect } from 'next/navigation'
 export default async function ProfilePage() {
     const session = await getCurrentSession()
     if (!session?.user) redirect('/login')
-    const [downloads, favorites, messages] = await Promise.all([
+    const [downloads, favorites] = await Promise.all([
         prisma.download.findMany({
             where: { userId: session.user.id },
             include: { document: true },
@@ -27,17 +26,11 @@ export default async function ProfilePage() {
             include: { document: true },
             orderBy: { createdAt: 'desc' },
         }),
-        prisma.message.findMany({
-            where: { authorId: session.user.id },
-            include: { filiere: true },
-            orderBy: { createdAt: 'desc' },
-        }),
     ])
 
     const stats = [
         { label: 'Telechargements', value: downloads.length, Icon: Download },
         { label: 'Favoris', value: favorites.length, Icon: Heart },
-        { label: 'Messages', value: messages.length, Icon: MessageCircle },
     ]
 
     return (
@@ -80,7 +73,7 @@ export default async function ProfilePage() {
                 </div>
 
                 {/* STATS */}
-                <div className="mt-6 grid gap-4 sm:grid-cols-3">
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
                     {stats.map(({ label, value, Icon }) => (
                         <Card key={label}>
                             <CardContent className="flex items-center gap-4 pt-5">
@@ -101,7 +94,7 @@ export default async function ProfilePage() {
                 </div>
 
                 {/* LISTS */}
-                <div className="mt-6 grid gap-5 lg:grid-cols-3">
+                <div className="mt-6 grid gap-5 lg:grid-cols-2">
                     <ProfileList
                         title="Telecharges"
                         icon={<Download size={16} />}
@@ -111,13 +104,6 @@ export default async function ProfilePage() {
                         title="Favoris"
                         icon={<Heart size={16} />}
                         items={favorites.map((f) => f.document.title)}
-                    />
-                    <ProfileList
-                        title="Messages"
-                        icon={<MessageCircle size={16} />}
-                        items={messages.map(
-                            (m) => `${m.filiere.code}: ${m.content}`,
-                        )}
                     />
                 </div>
             </div>

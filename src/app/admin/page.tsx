@@ -2,16 +2,16 @@ import { ActivityChart } from "@/components/admin/activity-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { Download, FileText, MessageCircle, Sparkles, Users } from "lucide-react";
+import { Download, FileText, Heart, Sparkles, Users } from "lucide-react";
 
 export default async function AdminPage() {
   await requireAdmin();
-  const [documents, students, downloads, messages, lastDocs] =
+  const [documents, students, downloads, favorites, lastDocs] =
     await Promise.all([
       prisma.document.count(),
       prisma.user.count({ where: { role: "STUDENT" } }),
       prisma.download.count(),
-      prisma.message.count(),
+      prisma.favorite.count(),
       prisma.document.findMany({ take: 5, orderBy: { createdAt: "desc" } }),
     ]);
   const activity = Array.from({ length: 7 }).map((_, i) => ({
@@ -23,7 +23,7 @@ export default async function AdminPage() {
     { label: "Documents", value: documents, Icon: FileText, tone: "from-violet-500 to-fuchsia-500" },
     { label: "Etudiants", value: students, Icon: Users, tone: "from-cyan-500 to-blue-500" },
     { label: "Telechargements", value: downloads, Icon: Download, tone: "from-emerald-500 to-teal-500" },
-    { label: "Messages", value: messages, Icon: MessageCircle, tone: "from-rose-500 to-pink-500" },
+    { label: "Favoris", value: favorites, Icon: Heart, tone: "from-rose-500 to-pink-500" },
   ];
 
   return (

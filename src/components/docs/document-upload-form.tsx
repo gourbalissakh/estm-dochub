@@ -92,12 +92,11 @@ export function DocumentUploadForm() {
         }
     }
 
-    async function submitBlobUpload(currentFile: File, filiereId: string) {
-        const blob = await upload(currentFile.name, currentFile, {
-            access: 'public',
-            handleUploadUrl: '/api/uploads/documents',
-        })
-
+    async function saveDocumentRecord(
+        currentFile: File,
+        filiereId: string,
+        blobUrl: string,
+    ) {
         const response = await fetch('/api/documents', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
@@ -107,29 +106,44 @@ export function DocumentUploadForm() {
                 fileName: currentFile.name,
                 fileType: currentFile.type || 'application/pdf',
                 fileSize: String(currentFile.size),
-                blobUrl: blob.url,
+                blobUrl,
             }),
         })
         const payload = await response.json().catch(() => ({}))
-
         if (!response.ok) {
-            throw new Error(
+            const detail =
                 typeof payload?.error === 'string'
                     ? payload.error
-                    : "Le serveur a refuse l'enregistrement du document.",
-            )
+                    : payload?.error?.fieldErrors
+                      ? Object.entries(payload.error.fieldErrors)
+                            .map(
+                                ([key, errors]) =>
+                                    `${key}: ${(errors as string[]).join(', ')}`,
+                            )
+                            .join(' | ')
+                      : "Le serveur a refuse l'enregistrement du document."
+            throw new Error(detail)
         }
+    }
 
-        setProgress(100)
+    function validate(filiereId: string): string | null {
+        if (!file) return 'Selectionnez un fichier PDF avant d envoyer.'
+        if (!filiereId) return 'Choisissez une filiere.'
+        if (!form.title || form.title.trim().length < 3)
+            return 'Le titre doit faire au moins 3 caracteres.'
+        if (!form.description || form.description.trim().length < 3)
+            return 'La description doit faire au moins 3 caracteres.'
+        if (!form.matiere || form.matiere.trim().length < 2)
+            return 'Renseignez la matiere.'
+        return null
     }
 
     async function submit() {
         const filiereId = form.filiereId || filieres[0]?.id
-        if (!file || !filiereId) {
+        const validationError = validate(filiereId)
+        if (validationError) {
             setState('error')
-            setMessage(
-                "Selectionnez un fichier et une filiere avant d'envoyer.",
-            )
+            setMessage(validationError)
             return
         }
 
@@ -138,9 +152,16 @@ export function DocumentUploadForm() {
         setMessage('Envoi du document en cours...')
 
         try {
-            await submitBlobUpload(file, filiereId)
+            const blob = await upload(file!.name, file!, {
+                access: 'public',
+                handleUploadUrl: '/api/uploads/documents',
+            })
+            setProgress(70)
+            setMessage('Enregistrement du document...')
+            await saveDocumentRecord(file!, filiereId, blob.url)
+            setProgress(100)
             setState('success')
-            setMessage('Document envoye avec succes via stockage cloud.')
+            setMessage('Document envoye avec succes.')
             setFile(null)
             setForm((current) => ({
                 ...current,
@@ -149,29 +170,30 @@ export function DocumentUploadForm() {
                 matiere: '',
             }))
             return
-        } catch {
-            setMessage('Stockage cloud indisponible, passage en mode local...')
-        }
-
-        try {
-            await submitLocalUpload(file, filiereId)
-            setState('success')
-            setMessage('Document envoye avec succes.')
-            setFile(null)
-            setProgress(100)
-            setForm((current) => ({
-                ...current,
-                title: '',
-                description: '',
-                matiere: '',
-            }))
-        } catch (error) {
-            setState('error')
-            setMessage(
-                error instanceof Error
-                    ? error.message
-                    : "Impossible d'envoyer le document.",
-            )
+        } catch (blobError) {
+            // Local fallback for dev environments without BLOB_READ_WRITE_TOKEN
+            try {
+                await submitLocalUpload(file!, filiereId)
+                setState('success')
+                setMessage('Document envoye avec succes (stockage local).')
+                setFile(null)
+                setProgress(100)
+                setForm((current) => ({
+                    ...current,
+                    title: '',
+                    description: '',
+                    matiere: '',
+                }))
+            } catch (localError) {
+                setState('error')
+                const message =
+                    blobError instanceof Error
+                        ? blobError.message
+                        : localError instanceof Error
+                          ? localError.message
+                          : "Impossible d'envoyer le document."
+                setMessage(message)
+            }
         }
     }
 

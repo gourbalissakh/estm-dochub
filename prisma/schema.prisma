@@ -56,7 +56,6 @@ model User {
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   documents        Document[]
-  messages         Message[]
   favorites        Favorite[]
   downloads        Download[]
 }
@@ -70,7 +69,6 @@ model Filiere {
   description String
   users       User[]
   documents   Document[]
-  messages    Message[]
 }
 
 model Document {
@@ -93,17 +91,6 @@ model Document {
   createdAt         DateTime     @default(now())
   favorites         Favorite[]
   downloads         Download[]
-}
-
-model Message {
-  id         String   @id @default(cuid())
-  content    String   @db.VarChar(500)
-  authorId   String
-  author     User     @relation(fields: [authorId], references: [id])
-  filiereId  String
-  filiere    Filiere  @relation(fields: [filiereId], references: [id])
-  isVisible  Boolean  @default(true)
-  createdAt  DateTime @default(now())
 }
 
 model Favorite {

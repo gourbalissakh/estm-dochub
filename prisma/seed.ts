@@ -107,7 +107,6 @@ const filieres = [
 async function main() {
     await prisma.download.deleteMany()
     await prisma.favorite.deleteMany()
-    await prisma.message.deleteMany()
     await prisma.document.deleteMany()
     await prisma.user.deleteMany()
     await prisma.filiere.deleteMany()
@@ -131,7 +130,7 @@ async function main() {
         },
     })
 
-    const students = await Promise.all(
+    await Promise.all(
         Array.from({ length: 5 }).map((_, index) =>
             prisma.user.create({
                 data: {
@@ -188,17 +187,6 @@ async function main() {
         })
     }
 
-    await Promise.all(
-        students.slice(0, 3).map((student, index) =>
-            prisma.message.create({
-                data: {
-                    content: `Quelqu'un a une fiche de revision pour ${createdFilieres[index].name} ?`,
-                    authorId: student.id,
-                    filiereId: createdFilieres[index].id,
-                },
-            }),
-        ),
-    )
 }
 
 main()
