@@ -3,30 +3,22 @@
 import { ThemeToggle } from '@/components/shared/theme-toggle'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { GraduationCap, LogOut, Menu, Sparkles, Upload, User, X } from 'lucide-react'
+import { LogOut, Menu, Terminal, Upload, User, X } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 
 const links = [
-    ['Accueil', '/'],
-    ['Filieres', '/filieres'],
-    ['Documents', '/documents'],
+    ['filieres', '/filieres'],
+    ['documents', '/documents'],
+    ['about', '/about'],
 ] as const
 
 export function Navbar() {
     const [open, setOpen] = useState(false)
-    const [scrolled, setScrolled] = useState(false)
     const { data: session } = useSession()
     const pathname = usePathname()
-
-    useEffect(() => {
-        const onScroll = () => setScrolled(window.scrollY > 8)
-        onScroll()
-        window.addEventListener('scroll', onScroll, { passive: true })
-        return () => window.removeEventListener('scroll', onScroll)
-    }, [])
 
     useEffect(() => {
         setOpen(false)
@@ -35,35 +27,35 @@ export function Navbar() {
     const navLinks = (
         <>
             {links.map(([label, href]) => {
-                const active =
-                    pathname === href ||
-                    (href !== '/' && pathname?.startsWith(href))
+                const active = pathname === href || pathname?.startsWith(href)
                 return (
                     <Link
                         key={href}
                         href={href}
+                        data-mono
                         className={cn(
-                            'relative rounded-full px-3 py-1.5 text-sm font-medium transition-colors',
+                            'px-2 py-1 text-sm transition-colors',
                             active
-                                ? 'text-[var(--primary)]'
-                                : 'text-[var(--fg-soft)] hover:text-[var(--primary)]',
+                                ? 'text-[var(--fg)] font-medium'
+                                : 'text-[var(--fg-muted)] hover:text-[var(--fg)]',
                         )}
                     >
                         {label}
-                        {active && (
-                            <span className="absolute inset-0 -z-10 rounded-full bg-[var(--primary-soft)]" />
-                        )}
                     </Link>
                 )
             })}
             {session?.user?.role === 'ADMIN' && (
                 <Link
                     href="/admin"
-                    className="rounded-full bg-[image:linear-gradient(135deg,#7c3aed,#06b6d4)] px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:shadow-glow transition"
+                    data-mono
+                    className={cn(
+                        'px-2 py-1 text-sm transition-colors',
+                        pathname?.startsWith('/admin')
+                            ? 'text-[var(--accent)] font-medium'
+                            : 'text-[var(--accent)] hover:opacity-80',
+                    )}
                 >
-                    <span className="flex items-center gap-1.5">
-                        <Sparkles size={13} /> Admin
-                    </span>
+                    admin
                 </Link>
             )}
         </>
@@ -74,24 +66,24 @@ export function Navbar() {
             {session && (
                 <Button asChild variant="ghost" size="sm" className="hidden lg:inline-flex">
                     <Link href="/documents/upload">
-                        <Upload size={15} /> Deposer
+                        <Upload size={14} /> Déposer
                     </Link>
                 </Button>
             )}
             {session ? (
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-1">
                     <Button asChild variant="outline" size="sm">
                         <Link href="/profile">
-                            <User size={14} /> Profil
+                            <User size={13} /> Profil
                         </Link>
                     </Button>
                     <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => signOut({ callbackUrl: '/' })}
-                        aria-label="Sortir"
+                        aria-label="Se déconnecter"
                     >
-                        <LogOut size={16} />
+                        <LogOut size={14} />
                     </Button>
                 </div>
             ) : (
@@ -104,35 +96,21 @@ export function Navbar() {
     )
 
     return (
-        <header
-            className={cn(
-                'sticky top-0 z-40 transition-all duration-300',
-                scrolled
-                    ? 'glass-strong shadow-[var(--shadow-sm)]'
-                    : 'bg-[var(--bg)]/80 backdrop-blur-md',
-            )}
-        >
-            <nav className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4">
+        <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--bg)]/95 backdrop-blur">
+            <nav className="mx-auto flex h-12 max-w-6xl items-center justify-between gap-4 px-4">
                 <Link
                     href="/"
-                    className="group flex items-center gap-2.5 text-base font-bold text-[var(--fg)]"
+                    className="group flex items-center gap-2 text-sm font-semibold text-[var(--fg)]"
                 >
-                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-[image:linear-gradient(135deg,#7c3aed,#6d28d9_50%,#06b6d4)] text-white shadow-md transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
-                        <GraduationCap size={18} />
+                    <span className="grid h-6 w-6 place-items-center rounded border border-[var(--border)] bg-[var(--bg-soft)] text-[var(--fg-soft)] group-hover:text-[var(--fg)]">
+                        <Terminal size={12} />
                     </span>
-                    <span className="hidden sm:flex flex-col leading-tight">
-                        <span className="text-[15px] font-bold">
-                            ESTM <span className="text-gradient">DocHub</span>
-                        </span>
-                        <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-[var(--fg-muted)]">
-                            Dakar
-                        </span>
-                    </span>
+                    <span data-mono className="hidden sm:inline">ESTM/dochub</span>
                 </Link>
 
                 <div className="hidden items-center gap-1 lg:flex">{navLinks}</div>
 
-                <div className="hidden items-center gap-2 md:flex">{actions}</div>
+                <div className="hidden items-center gap-1.5 md:flex">{actions}</div>
 
                 <Button
                     className="md:hidden"
@@ -141,13 +119,13 @@ export function Navbar() {
                     onClick={() => setOpen((value) => !value)}
                     aria-label="Menu"
                 >
-                    {open ? <X size={18} /> : <Menu size={18} />}
+                    {open ? <X size={16} /> : <Menu size={16} />}
                 </Button>
             </nav>
             {open && (
-                <div className="grid gap-3 border-t border-[var(--border)] glass-strong px-4 py-4 md:hidden animate-fade-in">
-                    <div className="flex flex-wrap gap-2">{navLinks}</div>
-                    <div className="flex flex-wrap items-center gap-2">{actions}</div>
+                <div className="border-t border-[var(--border)] bg-[var(--bg)] px-4 py-3 md:hidden">
+                    <div className="flex flex-col gap-1">{navLinks}</div>
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-[var(--border)] pt-3">{actions}</div>
                 </div>
             )}
         </header>

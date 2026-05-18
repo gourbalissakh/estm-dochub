@@ -2,21 +2,23 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
-  "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-semibold tracking-wide uppercase ring-1 ring-inset transition",
+  "inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium border whitespace-nowrap",
   {
     variants: {
       variant: {
         default:
-          "bg-[var(--primary-soft)] text-[var(--primary)] ring-[var(--primary)]/20",
+          "bg-[var(--bg-code)] text-[var(--fg-soft)] border-[var(--border)]",
         accent:
-          "bg-[color-mix(in_oklab,var(--accent-soft)_70%,transparent)] text-[var(--accent)] ring-[var(--accent)]/25",
+          "bg-[var(--accent-soft)] text-[var(--accent)] border-[var(--accent)]/30",
         outline:
-          "bg-transparent text-[var(--fg-soft)] ring-[var(--border-strong)]",
-        success: "bg-emerald-500/10 text-emerald-600 ring-emerald-500/20 dark:text-emerald-400",
-        warn: "bg-amber-500/10 text-amber-600 ring-amber-500/20 dark:text-amber-400",
-        danger: "bg-rose-500/10 text-rose-600 ring-rose-500/20 dark:text-rose-400",
+          "bg-transparent text-[var(--fg-soft)] border-[var(--border-strong)]",
+        primary:
+          "bg-[var(--primary-soft)] text-[var(--primary)] border-[var(--primary)]/30",
+        success: "bg-[var(--accent-soft)] text-[var(--ok)] border-[var(--ok)]/30",
+        warn: "bg-amber-500/10 text-[var(--warn)] border-amber-500/30",
+        danger: "bg-red-500/10 text-[var(--danger)] border-red-500/30",
         solid:
-          "bg-[image:linear-gradient(135deg,#7c3aed_0%,#06b6d4_100%)] text-white ring-transparent shadow-sm",
+          "bg-[var(--fg)] text-[var(--bg)] border-[var(--fg)]",
       },
     },
     defaultVariants: { variant: "default" },

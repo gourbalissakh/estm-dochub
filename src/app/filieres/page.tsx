@@ -1,7 +1,6 @@
 import { FiliereCard } from '@/components/filieres/filiere-card'
 import { prisma } from '@/lib/prisma'
 import { cn } from '@/lib/utils'
-import { Layers } from 'lucide-react'
 import Link from 'next/link'
 
 export default async function FilieresPage({
@@ -13,45 +12,37 @@ export default async function FilieresPage({
     const filieres = await prisma.filiere.findMany({
         where: sector === 'TECH' || sector === 'MGMT' ? { sector } : {},
         include: { _count: { select: { documents: true, users: true } } },
-        orderBy: { name: 'asc' },
+        orderBy: { code: 'asc' },
     })
     const tabs = [
-        ['Toutes', '/filieres', !sector],
-        ['Technique', '/filieres?sector=TECH', sector === 'TECH'],
-        ['Gestion', '/filieres?sector=MGMT', sector === 'MGMT'],
+        ['all', '/filieres', !sector],
+        ['tech', '/filieres?sector=TECH', sector === 'TECH'],
+        ['mgmt', '/filieres?sector=MGMT', sector === 'MGMT'],
     ] as const
 
     return (
-        <div className="relative">
-            <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-72 bg-mesh opacity-60" />
-            <div className="mx-auto max-w-7xl px-4 py-12">
-                <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-strong)] bg-[var(--bg-elev)] px-3 py-1 text-xs font-bold uppercase tracking-wider text-[var(--accent)]">
-                            <Layers size={12} /> Filieres
-                        </span>
-                        <h1 className="mt-3 text-4xl font-bold tracking-tight text-[var(--fg)] sm:text-5xl">
-                            Filieres <span className="text-gradient">ESTM</span>
-                        </h1>
-                        <p className="mt-2 max-w-xl text-sm text-[var(--fg-soft)]">
-                            Selectionnez une filiere pour acceder a tous les
-                            documents associes.
-                        </p>
-                    </div>
-                    <span className="rounded-full border border-[var(--border)] bg-[var(--bg-elev)] px-3 py-1 text-xs font-semibold text-[var(--fg-soft)]">
-                        {filieres.length} {filieres.length > 1 ? 'filieres' : 'filiere'}
-                    </span>
+        <div className="mx-auto max-w-6xl px-4 py-10">
+            <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[var(--border)] pb-4">
+                <div>
+                    <p data-mono className="text-xs text-[var(--fg-muted)]">/filieres</p>
+                    <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--fg)]">
+                        Filières ESTM
+                    </h1>
+                    <p className="mt-1 text-sm text-[var(--fg-soft)]">
+                        {filieres.length} filière{filieres.length > 1 ? 's' : ''} {sector === 'TECH' ? 'techniques' : sector === 'MGMT' ? 'de gestion' : 'officielles ESTM Dakar'}
+                    </p>
                 </div>
 
-                <div className="my-8 inline-flex flex-wrap gap-1 rounded-full border border-[var(--border)] bg-[var(--bg-elev)] p-1 shadow-[var(--shadow-sm)]">
+                <div className="inline-flex rounded-md border border-[var(--border)] bg-[var(--bg-elev)] p-0.5">
                     {tabs.map(([label, href, active]) => (
                         <Link
                             key={href}
+                            data-mono
                             className={cn(
-                                'rounded-full px-4 py-2 text-sm font-semibold transition',
+                                'rounded px-2.5 py-1 text-xs transition-colors',
                                 active
-                                    ? 'bg-[image:linear-gradient(135deg,#7c3aed,#06b6d4)] text-white shadow-sm'
-                                    : 'text-[var(--fg-soft)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]',
+                                    ? 'bg-[var(--fg)] text-[var(--bg)]'
+                                    : 'text-[var(--fg-soft)] hover:text-[var(--fg)]',
                             )}
                             href={href}
                         >
@@ -59,18 +50,12 @@ export default async function FilieresPage({
                         </Link>
                     ))}
                 </div>
+            </div>
 
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                    {filieres.map((f, i) => (
-                        <div
-                            key={f.id}
-                            className="animate-fade-in"
-                            style={{ animationDelay: `${i * 40}ms` }}
-                        >
-                            <FiliereCard filiere={f} />
-                        </div>
-                    ))}
-                </div>
+            <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filieres.map((f) => (
+                    <FiliereCard key={f.id} filiere={f} />
+                ))}
             </div>
         </div>
     )

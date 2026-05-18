@@ -1,16 +1,10 @@
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { getCurrentSession } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { initials } from '@/lib/utils'
-import {
-    BadgeCheck,
-    Download,
-    Heart,
-    Mail,
-    Sparkles,
-} from 'lucide-react'
+import { Download, FileText, Heart, Mail } from 'lucide-react'
 import { redirect } from 'next/navigation'
+import Link from 'next/link'
 
 export default async function ProfilePage() {
     const session = await getCurrentSession()
@@ -28,127 +22,97 @@ export default async function ProfilePage() {
         }),
     ])
 
-    const stats = [
-        { label: 'Telechargements', value: downloads.length, Icon: Download },
-        { label: 'Favoris', value: favorites.length, Icon: Heart },
-    ]
-
     return (
-        <div className="relative">
-            <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 bg-mesh opacity-60" />
-            <div className="mx-auto max-w-6xl px-4 py-10">
-                {/* HEADER */}
-                <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-[var(--bg-elev)] shadow-[var(--shadow-md)]">
-                    <div className="h-32 w-full bg-grad-primary relative">
-                        <div className="absolute inset-0 dotted-grid opacity-30" />
+        <div className="mx-auto max-w-5xl px-4 py-10">
+            {/* HEADER */}
+            <div className="rounded-md border border-[var(--border)] bg-[var(--bg-elev)]">
+                <div className="border-b border-[var(--border)] bg-[var(--bg-soft)] px-4 py-3">
+                    <p data-mono className="text-xs text-[var(--fg-muted)]">/profile</p>
+                </div>
+                <div className="flex flex-col items-start gap-4 p-5 sm:flex-row sm:items-center">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center rounded-md border border-[var(--border)] bg-[var(--bg-soft)] text-lg font-semibold text-[var(--fg)]">
+                        {initials(session.user.firstName, session.user.lastName)}
                     </div>
-                    <div className="relative -mt-12 flex flex-col items-start gap-5 px-6 pb-6 sm:-mt-14 sm:flex-row sm:items-end sm:px-8">
-                        <div className="grid h-24 w-24 shrink-0 place-items-center rounded-3xl border-4 border-[var(--bg-elev)] bg-[image:linear-gradient(135deg,#7c3aed,#06b6d4)] text-2xl font-bold text-white shadow-md">
-                            {initials(
-                                session.user.firstName,
-                                session.user.lastName,
-                            )}
-                        </div>
-                        <div className="flex-1">
-                            <div className="flex flex-wrap items-center gap-2">
-                                <h1 className="text-2xl font-bold tracking-tight text-[var(--fg)] sm:text-3xl">
-                                    {session.user.firstName} {session.user.lastName}
-                                </h1>
-                                <Badge variant="success">
-                                    <BadgeCheck size={11} /> Verifie
-                                </Badge>
-                                <Badge variant={session.user.role === 'ADMIN' ? 'solid' : 'default'}>
-                                    {session.user.role === 'ADMIN' && (
-                                        <Sparkles size={11} />
-                                    )}
-                                    {session.user.role}
-                                </Badge>
-                            </div>
-                            <p className="mt-1 inline-flex items-center gap-1.5 text-sm text-[var(--fg-soft)]">
-                                <Mail size={13} />
-                                {session.user.email}
-                            </p>
-                        </div>
+                    <div className="flex-1">
+                        <h1 className="text-xl font-semibold tracking-tight text-[var(--fg)]">
+                            {session.user.firstName} {session.user.lastName}
+                        </h1>
+                        <p className="mt-0.5 inline-flex items-center gap-1.5 text-sm text-[var(--fg-soft)]" data-mono>
+                            <Mail size={12} />
+                            {session.user.email}
+                        </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                        <Badge variant={session.user.role === 'ADMIN' ? 'solid' : 'primary'}>
+                            {session.user.role}
+                        </Badge>
+                        <Badge variant="success">{session.user.status}</Badge>
                     </div>
                 </div>
+            </div>
 
-                {/* STATS */}
-                <div className="mt-6 grid gap-4 sm:grid-cols-2">
-                    {stats.map(({ label, value, Icon }) => (
-                        <Card key={label}>
-                            <CardContent className="flex items-center gap-4 pt-5">
-                                <div className="grid h-12 w-12 place-items-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)]">
-                                    <Icon size={20} />
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-bold tabular-nums text-[var(--fg)]">
-                                        {value}
-                                    </div>
-                                    <div className="text-xs font-medium text-[var(--fg-muted)]">
-                                        {label}
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    ))}
-                </div>
+            {/* STATS */}
+            <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <StatCard icon={<Download size={14} />} label="Téléchargements" value={downloads.length} />
+                <StatCard icon={<Heart size={14} />} label="Favoris" value={favorites.length} />
+            </div>
 
-                {/* LISTS */}
-                <div className="mt-6 grid gap-5 lg:grid-cols-2">
-                    <ProfileList
-                        title="Telecharges"
-                        icon={<Download size={16} />}
-                        items={downloads.map((d) => d.document.title)}
-                    />
-                    <ProfileList
-                        title="Favoris"
-                        icon={<Heart size={16} />}
-                        items={favorites.map((f) => f.document.title)}
-                    />
-                </div>
+            {/* LISTS */}
+            <div className="mt-5 grid gap-5 lg:grid-cols-2">
+                <ProfileList
+                    title="downloads"
+                    items={downloads.map((d) => ({ id: d.id, title: d.document.title }))}
+                    empty="Aucun téléchargement"
+                />
+                <ProfileList
+                    title="favorites"
+                    items={favorites.map((f) => ({ id: `${f.userId}-${f.documentId}`, title: f.document.title }))}
+                    empty="Aucun favori"
+                />
             </div>
         </div>
     )
 }
 
-function ProfileList({
-    title,
-    icon,
-    items,
-}: {
-    title: string
-    icon: React.ReactNode
-    items: string[]
-}) {
+function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: number }) {
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-base">
-                    <span className="grid h-7 w-7 place-items-center rounded-lg bg-[var(--primary-soft)] text-[var(--primary)]">
-                        {icon}
-                    </span>
-                    {title}
-                    <span className="ml-auto text-xs font-medium text-[var(--fg-muted)]">
-                        {items.length}
-                    </span>
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="grid gap-2 text-sm text-[var(--fg-soft)]">
-                {items.length ? (
-                    items.slice(0, 8).map((item, index) => (
-                        <div
-                            key={`${item}-${index}`}
-                            className="line-clamp-1 rounded-lg border border-[var(--border)] bg-[var(--bg-soft)] px-3 py-2 text-[var(--fg)] transition hover:border-[var(--primary)]/40"
-                        >
-                            {item}
-                        </div>
-                    ))
+        <div className="flex items-center justify-between rounded-md border border-[var(--border)] bg-[var(--bg-elev)] px-4 py-3">
+            <div>
+                <div data-mono className="text-xs text-[var(--fg-muted)]">{label.toLowerCase()}</div>
+                <div className="mt-0.5 text-2xl font-semibold tabular-nums text-[var(--fg)]">{value}</div>
+            </div>
+            <span className="grid h-9 w-9 place-items-center rounded-md border border-[var(--border)] bg-[var(--bg-soft)] text-[var(--fg-soft)]">
+                {icon}
+            </span>
+        </div>
+    )
+}
+
+function ProfileList({ title, items, empty }: { title: string; items: Array<{ id: string; title: string }>; empty: string }) {
+    return (
+        <div className="overflow-hidden rounded-md border border-[var(--border)] bg-[var(--bg-elev)]">
+            <div className="flex items-center justify-between border-b border-[var(--border)] bg-[var(--bg-soft)] px-3 py-2">
+                <span data-mono className="text-xs text-[var(--fg-muted)]">{title}</span>
+                <span data-mono className="text-[10px] text-[var(--fg-muted)]">{items.length}</span>
+            </div>
+            <div>
+                {items.length === 0 ? (
+                    <div className="p-6 text-center text-xs text-[var(--fg-muted)]" data-mono>
+                        {empty}
+                    </div>
                 ) : (
-                    <p className="rounded-lg border border-dashed border-[var(--border-strong)] py-6 text-center text-xs text-[var(--fg-muted)]">
-                        Aucune activite pour le moment.
-                    </p>
+                    items.slice(0, 10).map((item) => (
+                        <Link
+                            key={item.id}
+                            href="/documents"
+                            className="flex items-center gap-2 border-b border-[var(--border)] px-3 py-2 text-sm text-[var(--fg)] transition-colors last:border-b-0 hover:bg-[var(--bg-soft)]"
+                        >
+                            <FileText size={12} className="shrink-0 text-[var(--fg-muted)]" />
+                            <span className="truncate">{item.title}</span>
+                        </Link>
+                    ))
                 )}
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     )
 }

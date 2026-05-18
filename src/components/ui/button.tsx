@@ -4,31 +4,33 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "relative inline-flex items-center justify-center gap-2 rounded-xl text-sm font-semibold tracking-tight transition-all duration-200 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98] select-none whitespace-nowrap",
+  "inline-flex items-center justify-center gap-1.5 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--bg)] disabled:pointer-events-none disabled:opacity-50 select-none whitespace-nowrap border",
   {
     variants: {
       variant: {
         default:
-          "text-white shadow-md bg-[image:linear-gradient(135deg,#7c3aed_0%,#6d28d9_60%,#06b6d4_140%)] hover:shadow-glow hover:brightness-110",
+          "bg-[var(--fg)] text-[var(--bg)] border-[var(--fg)] hover:bg-[var(--fg-soft)] hover:border-[var(--fg-soft)]",
         secondary:
-          "bg-[var(--primary-soft)] text-[var(--primary)] hover:bg-[color-mix(in_oklab,var(--primary-soft)_80%,var(--primary))] dark:hover:text-white",
+          "bg-[var(--bg-soft)] text-[var(--fg)] border-[var(--border)] hover:bg-[var(--bg-code)] hover:border-[var(--border-strong)]",
         ghost:
-          "text-[var(--fg-soft)] hover:bg-[var(--primary-soft)] hover:text-[var(--primary)]",
+          "bg-transparent text-[var(--fg-soft)] border-transparent hover:bg-[var(--bg-code)] hover:text-[var(--fg)]",
         outline:
-          "border border-[var(--border-strong)] bg-[var(--bg-soft)] text-[var(--fg)] hover:border-[var(--primary)] hover:text-[var(--primary)] hover:shadow-sm",
+          "bg-[var(--bg)] text-[var(--fg)] border-[var(--border)] hover:bg-[var(--bg-soft)] hover:border-[var(--border-strong)]",
         danger:
-          "bg-[image:linear-gradient(135deg,#ef4444_0%,#dc2626_100%)] text-white shadow-md hover:brightness-110 hover:shadow-lg",
+          "bg-[var(--danger)] text-white border-[var(--danger)] hover:opacity-90",
         accent:
-          "bg-[image:linear-gradient(135deg,#06b6d4_0%,#0891b2_100%)] text-white shadow-md hover:brightness-110",
+          "bg-[var(--accent)] text-white border-[var(--accent)] hover:bg-[var(--accent-hover)] hover:border-[var(--accent-hover)]",
+        primary:
+          "bg-[var(--primary)] text-white border-[var(--primary)] hover:bg-[var(--primary-hover)] hover:border-[var(--primary-hover)]",
         link:
-          "text-[var(--primary)] underline-offset-4 hover:underline px-0",
+          "text-[var(--primary)] underline-offset-2 hover:underline border-transparent bg-transparent px-0",
       },
       size: {
-        sm: "h-9 px-3.5 text-xs",
-        md: "h-11 px-5",
-        lg: "h-12 px-6 text-base",
-        xl: "h-14 px-8 text-base",
-        icon: "h-10 w-10",
+        sm: "h-7 px-2.5 text-xs",
+        md: "h-8 px-3 text-sm",
+        lg: "h-10 px-4 text-sm",
+        xl: "h-11 px-5 text-base",
+        icon: "h-8 w-8",
       },
     },
     defaultVariants: { variant: "default", size: "md" },

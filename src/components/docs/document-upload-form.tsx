@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { upload } from '@vercel/blob/client'
@@ -197,19 +196,21 @@ export function DocumentUploadForm() {
         }
     }
 
+    const stateColor =
+        state === 'error'
+            ? 'text-[var(--danger)]'
+            : state === 'success'
+              ? 'text-[var(--accent)]'
+              : 'text-[var(--fg-soft)]'
+
     return (
-        <Card className="overflow-hidden">
-            <CardHeader className="border-b border-[var(--border)] bg-grad-soft">
-                <CardTitle className="text-xl">Ajouter un document</CardTitle>
-                <p className="max-w-2xl text-sm text-[var(--fg-soft)]">
-                    Partagez un cours, un TD, un TP ou un ancien sujet. Les
-                    documents sont relies a une filiere ESTM et restent lisibles
-                    sur mobile.
-                </p>
-            </CardHeader>
-            <CardContent className="grid gap-6 pt-6 lg:grid-cols-[minmax(0,1.3fr)_minmax(260px,0.7fr)] lg:gap-8">
-                <div className="grid gap-4">
-                    <label className="group/drop grid min-h-40 cursor-pointer place-items-center rounded-2xl border-2 border-dashed border-[var(--border-strong)] bg-[var(--bg-soft)] p-6 text-center transition hover:border-[var(--primary)] hover:bg-[var(--primary-soft)]/40">
+        <div className="grid gap-5 lg:grid-cols-[1fr_260px]">
+            <div className="rounded-md border border-[var(--border)] bg-[var(--bg-elev)]">
+                <div className="border-b border-[var(--border)] bg-[var(--bg-soft)] px-4 py-2">
+                    <p data-mono className="text-xs text-[var(--fg-muted)]">$ document.upload</p>
+                </div>
+                <div className="grid gap-3 p-4">
+                    <label className="group flex cursor-pointer items-center gap-3 rounded-md border border-dashed border-[var(--border)] bg-[var(--bg-soft)] px-4 py-5 transition-colors hover:border-[var(--border-strong)] hover:bg-[var(--bg-code)]">
                         <input
                             className="hidden"
                             type="file"
@@ -218,95 +219,113 @@ export function DocumentUploadForm() {
                                 setFile(event.target.files?.[0] ?? null)
                             }
                         />
-                        <div className="space-y-2">
-                            <div className="mx-auto grid h-12 w-12 place-items-center rounded-xl bg-[var(--primary-soft)] text-[var(--primary)] transition group-hover/drop:scale-110">
-                                <Upload size={20} />
-                            </div>
-                            <p className="font-semibold text-[var(--fg)]">
+                        <span className="grid h-8 w-8 place-items-center rounded-md border border-[var(--border)] bg-[var(--bg-elev)] text-[var(--fg-soft)]">
+                            <Upload size={14} />
+                        </span>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-sm font-medium text-[var(--fg)]">
                                 {file ? file.name : 'Choisir un fichier PDF'}
                             </p>
-                            <p className="text-sm text-[var(--fg-soft)]">
-                                Glissez-deposez ou cliquez pour selectionner un
-                                document.
+                            <p data-mono className="text-xs text-[var(--fg-muted)]">
+                                {file ? `${(file.size / 1024).toFixed(1)} KB` : 'pdf · max 4.5 MB'}
                             </p>
                         </div>
                     </label>
 
-                    <div className="grid gap-4 md:grid-cols-2">
-                        <Input
-                            placeholder="Titre du document"
-                            value={form.title ?? ''}
-                            onChange={(event) =>
-                                setForm({ ...form, title: event.target.value })
-                            }
-                        />
-                        <Input
-                            placeholder="Matiere"
-                            value={form.matiere ?? ''}
-                            onChange={(event) =>
-                                setForm({
-                                    ...form,
-                                    matiere: event.target.value,
-                                })
-                            }
-                        />
+                    <div className="grid gap-3 md:grid-cols-2">
+                        <label className="grid gap-1">
+                            <span data-mono className="text-xs text-[var(--fg-muted)]">titre</span>
+                            <Input
+                                value={form.title ?? ''}
+                                onChange={(event) =>
+                                    setForm({ ...form, title: event.target.value })
+                                }
+                            />
+                        </label>
+                        <label className="grid gap-1">
+                            <span data-mono className="text-xs text-[var(--fg-muted)]">matiere</span>
+                            <Input
+                                value={form.matiere ?? ''}
+                                onChange={(event) =>
+                                    setForm({
+                                        ...form,
+                                        matiere: event.target.value,
+                                    })
+                                }
+                            />
+                        </label>
                     </div>
 
-                    <Textarea
-                        placeholder="Description"
-                        value={form.description ?? ''}
-                        onChange={(event) =>
-                            setForm({
-                                ...form,
-                                description: event.target.value,
-                            })
-                        }
-                    />
-
-                    <div className="grid gap-3 md:grid-cols-4">
-                        <select
-                            className="h-11 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-soft)] px-3 text-sm text-[var(--fg)] outline-none transition focus:border-[var(--primary)] focus:ring-[3px] focus:ring-[var(--ring)]"
-                            value={form.filiereId || ''}
+                    <label className="grid gap-1">
+                        <span data-mono className="text-xs text-[var(--fg-muted)]">description</span>
+                        <Textarea
+                            value={form.description ?? ''}
                             onChange={(event) =>
                                 setForm({
                                     ...form,
-                                    filiereId: event.target.value,
+                                    description: event.target.value,
                                 })
                             }
-                        >
-                            <option value="">Choisir une filiere</option>
-                            {filieres.map((filiere) => (
-                                <option key={filiere.id} value={filiere.id}>
-                                    {filiere.name}
-                                </option>
-                            ))}
-                        </select>
-                        <select
-                            className="h-11 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-soft)] px-3 text-sm text-[var(--fg)] outline-none transition focus:border-[var(--primary)] focus:ring-[3px] focus:ring-[var(--ring)]"
-                            value={form.type}
-                            onChange={(event) =>
-                                setForm({ ...form, type: event.target.value })
-                            }
-                        >
-                            <option value="COURS">Cours</option>
-                            <option value="ANCIEN_SUJET">Ancien sujet</option>
-                            <option value="TP">TP</option>
-                            <option value="TD">TD</option>
-                            <option value="AUTRE">Autre</option>
-                        </select>
-                        <select
-                            className="h-11 rounded-xl border border-[var(--border-strong)] bg-[var(--bg-soft)] px-3 text-sm text-[var(--fg)] outline-none transition focus:border-[var(--primary)] focus:ring-[3px] focus:ring-[var(--ring)]"
-                            value={form.niveau}
-                            onChange={(event) =>
-                                setForm({ ...form, niveau: event.target.value })
-                            }
-                        >
-                            <option value="L1">L1</option>
-                            <option value="L2">L2</option>
-                            <option value="L3">L3</option>
-                            <option value="M1">M1</option>
-                            <option value="M2">M2</option>
-                        </select>
+                        />
+                    </label>
+
+                    <div className="grid gap-3 md:grid-cols-4">
+                        <label className="grid gap-1 md:col-span-2">
+                            <span data-mono className="text-xs text-[var(--fg-muted)]">filiere</span>
+                            <select
+                                className="h-9 rounded-md border border-[var(--border)] bg-[var(--bg-elev)] px-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]"
+                                value={form.filiereId || ''}
+                                onChange={(event) =>
+                                    setForm({
+                                        ...form,
+                                        filiereId: event.target.value,
+                                    })
+                                }
+                            >
+                                <option value="">Choisir...</option>
+                                {filieres.map((filiere) => (
+                                    <option key={filiere.id} value={filiere.id}>
+                                        {filiere.code} · {filiere.name}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <label className="grid gap-1">
+                            <span data-mono className="text-xs text-[var(--fg-muted)]">type</span>
+                            <select
+                                className="h-9 rounded-md border border-[var(--border)] bg-[var(--bg-elev)] px-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]"
+                                value={form.type}
+                                onChange={(event) =>
+                                    setForm({ ...form, type: event.target.value })
+                                }
+                            >
+                                <option value="COURS">Cours</option>
+                                <option value="ANCIEN_SUJET">Ancien sujet</option>
+                                <option value="TP">TP</option>
+                                <option value="TD">TD</option>
+                                <option value="AUTRE">Autre</option>
+                            </select>
+                        </label>
+                        <label className="grid gap-1">
+                            <span data-mono className="text-xs text-[var(--fg-muted)]">niveau</span>
+                            <select
+                                className="h-9 rounded-md border border-[var(--border)] bg-[var(--bg-elev)] px-3 text-sm text-[var(--fg)] outline-none focus:border-[var(--primary)] focus:ring-2 focus:ring-[var(--ring)]"
+                                value={form.niveau}
+                                onChange={(event) =>
+                                    setForm({ ...form, niveau: event.target.value })
+                                }
+                            >
+                                <option value="L1">L1</option>
+                                <option value="L2">L2</option>
+                                <option value="L3">L3</option>
+                                <option value="M1">M1</option>
+                                <option value="M2">M2</option>
+                            </select>
+                        </label>
+                    </div>
+
+                    <label className="grid gap-1">
+                        <span data-mono className="text-xs text-[var(--fg-muted)]">annee academique</span>
                         <Input
                             value={form.anneeAcademique}
                             onChange={(event) =>
@@ -316,57 +335,52 @@ export function DocumentUploadForm() {
                                 })
                             }
                         />
-                    </div>
+                    </label>
 
-                    <div className="space-y-2">
-                        <div className="h-2 overflow-hidden rounded-full bg-[var(--bg-soft)] ring-1 ring-inset ring-[var(--border)]">
+                    <div className="space-y-1.5">
+                        <div className="h-1 overflow-hidden rounded-full bg-[var(--bg-soft)] border border-[var(--border)]">
                             <div
                                 data-testid="upload-progress"
-                                className="h-full bg-[image:linear-gradient(90deg,#7c3aed,#06b6d4)] transition-all duration-300"
+                                className="h-full bg-[var(--accent)] transition-all duration-300"
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
-                        <p className="text-sm text-[var(--fg-soft)]">
+                        <p data-mono className={`text-xs ${stateColor}`}>
                             {message}
                         </p>
                     </div>
 
                     <Button
-                        className="w-full sm:w-fit"
+                        className="w-fit"
+                        size="lg"
                         type="button"
-                        disabled={
-                            !file || !form.filiereId || state === 'uploading'
-                        }
+                        disabled={!file || !form.filiereId || state === 'uploading'}
                         onClick={submit}
                     >
-                        {state === 'uploading'
-                            ? 'Envoi en cours...'
-                            : 'Envoyer le document'}
+                        {state === 'uploading' ? 'Envoi en cours...' : 'Envoyer le document'}
                     </Button>
                 </div>
+            </div>
 
-                <aside className="rounded-2xl border border-[var(--border)] bg-[var(--bg-soft)] p-5 text-sm text-[var(--fg-soft)]">
-                    <h3 className="text-base font-semibold text-[var(--fg)]">
-                        Avant l&apos;envoi
-                    </h3>
-                    <ul className="mt-4 grid gap-3">
-                        {[
-                            'PDF recommande pour une lecture uniforme.',
-                            'Chaque document doit etre associe a une filiere ESTM.',
-                            'Les intitules courts et precis facilitent la recherche.',
-                            'Les utilisateurs valides peuvent deposer un document.',
-                        ].map((tip) => (
-                            <li
-                                key={tip}
-                                className="flex items-start gap-2 leading-relaxed"
-                            >
-                                <span className="mt-1.5 inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--primary)]" />
-                                {tip}
-                            </li>
-                        ))}
-                    </ul>
-                </aside>
-            </CardContent>
-        </Card>
+            <aside className="rounded-md border border-[var(--border)] bg-[var(--bg-soft)]">
+                <div className="border-b border-[var(--border)] px-3 py-2">
+                    <p data-mono className="text-xs text-[var(--fg-muted)]">notes.md</p>
+                </div>
+                <ul className="grid gap-2 p-3 text-xs leading-relaxed text-[var(--fg-soft)]" data-mono>
+                    {[
+                        'PDF uniquement',
+                        'Lier le document a une filiere',
+                        'Titre court et precis',
+                        'Compte VALIDATED requis',
+                        'Max 4.5 MB sur plan Hobby',
+                    ].map((tip) => (
+                        <li key={tip} className="flex items-start gap-1.5">
+                            <span className="mt-1 inline-block h-1 w-1 shrink-0 rounded-full bg-[var(--fg-muted)]" />
+                            {tip}
+                        </li>
+                    ))}
+                </ul>
+            </aside>
+        </div>
     )
 }

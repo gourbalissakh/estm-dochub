@@ -3,12 +3,18 @@ import { Navbar } from '@/components/shared/navbar'
 import { Providers } from '@/components/shared/providers'
 import { getCurrentSession } from '@/lib/auth'
 import type { Metadata, Viewport } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, JetBrains_Mono } from 'next/font/google'
 import './globals.css'
 
 const inter = Inter({
     subsets: ['latin'],
-    variable: '--font-inter',
+    variable: '--font-sans',
+    display: 'swap',
+})
+
+const jetbrainsMono = JetBrains_Mono({
+    subsets: ['latin'],
+    variable: '--font-mono',
     display: 'swap',
 })
 
@@ -39,8 +45,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
     themeColor: [
-        { media: '(prefers-color-scheme: light)', color: '#f7f5ff' },
-        { media: '(prefers-color-scheme: dark)', color: '#0a0716' },
+        { media: '(prefers-color-scheme: light)', color: '#fdfdfd' },
+        { media: '(prefers-color-scheme: dark)', color: '#0d1117' },
     ],
 }
 
@@ -61,7 +67,7 @@ export default async function RootLayout({
 }>) {
     const session = await getCurrentSession()
     return (
-        <html lang="fr" className={`h-full ${inter.variable}`} suppressHydrationWarning>
+        <html lang="fr" className={`h-full ${inter.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
             <head>
                 <script dangerouslySetInnerHTML={{ __html: themeScript }} />
             </head>

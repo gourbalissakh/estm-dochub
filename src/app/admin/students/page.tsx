@@ -1,6 +1,5 @@
 import { StudentStatusButton } from "@/components/admin/admin-actions";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { initials } from "@/lib/utils";
@@ -23,36 +22,44 @@ export default async function AdminStudentsPage() {
     {},
   );
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Etudiants · {students.length}</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="mb-4 flex flex-wrap gap-2">
-          <Badge variant="success">Valides {counts.VALIDATED ?? 0}</Badge>
-          <Badge variant="warn">En attente {counts.PENDING ?? 0}</Badge>
-          <Badge variant="danger">Bloques {counts.BLOCKED ?? 0}</Badge>
+    <div>
+      <div className="mb-5">
+        <p data-mono className="text-xs text-[var(--fg-muted)]">/admin/students</p>
+        <h1 className="mt-1 text-2xl font-semibold tracking-tight text-[var(--fg)]">
+          Étudiants
+        </h1>
+        <p className="mt-1 text-sm text-[var(--fg-soft)]">
+          {students.length} compte{students.length > 1 ? 's' : ''} étudiant{students.length > 1 ? 's' : ''}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          <Badge variant="success">VALIDATED · {counts.VALIDATED ?? 0}</Badge>
+          <Badge variant="warn">PENDING · {counts.PENDING ?? 0}</Badge>
+          <Badge variant="danger">BLOCKED · {counts.BLOCKED ?? 0}</Badge>
         </div>
-        <div className="overflow-x-auto -mx-6">
+      </div>
+
+      <div className="overflow-hidden rounded-md border border-[var(--border)] bg-[var(--bg-elev)]">
+        <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-[var(--bg-soft)] text-[11px] uppercase tracking-wider text-[var(--fg-muted)]">
-              <tr>
-                <th className="px-6 py-3 text-left font-semibold">Etudiant</th>
-                <th className="px-3 py-3 text-left font-semibold">Email</th>
-                <th className="px-3 py-3 text-left font-semibold">Filiere</th>
-                <th className="px-3 py-3 text-left font-semibold">Statut</th>
-                <th className="px-6 py-3 text-right font-semibold">Actions</th>
+            <thead>
+              <tr className="border-b border-[var(--border)] bg-[var(--bg-soft)] text-xs text-[var(--fg-muted)]" data-mono>
+                <th className="px-3 py-2 text-left font-medium">étudiant</th>
+                <th className="px-3 py-2 text-left font-medium">email</th>
+                <th className="px-3 py-2 text-left font-medium">filière</th>
+                <th className="px-3 py-2 text-left font-medium">niv.</th>
+                <th className="px-3 py-2 text-left font-medium">status</th>
+                <th className="px-3 py-2 text-right font-medium">actions</th>
               </tr>
             </thead>
             <tbody>
               {students.map((s) => (
                 <tr
                   key={s.id}
-                  className="border-t border-[var(--border)] transition hover:bg-[var(--primary-soft)]/40"
+                  className="border-b border-[var(--border)] transition-colors last:border-b-0 hover:bg-[var(--bg-soft)]"
                 >
-                  <td className="px-6 py-3">
-                    <div className="flex items-center gap-2.5">
-                      <span className="grid h-8 w-8 place-items-center rounded-lg bg-[image:linear-gradient(135deg,#7c3aed,#06b6d4)] text-[11px] font-bold text-white">
+                  <td className="px-3 py-2">
+                    <div className="flex items-center gap-2">
+                      <span className="grid h-7 w-7 place-items-center rounded-md border border-[var(--border)] bg-[var(--bg-soft)] text-[10px] font-semibold text-[var(--fg)]">
                         {initials(s.firstName, s.lastName)}
                       </span>
                       <span className="font-medium text-[var(--fg)]">
@@ -60,27 +67,20 @@ export default async function AdminStudentsPage() {
                       </span>
                     </div>
                   </td>
-                  <td className="px-3 py-3 text-[var(--fg-soft)]">{s.email}</td>
-                  <td className="px-3 py-3 text-[var(--fg-soft)]">
-                    {s.filiere?.code ?? "-"}
+                  <td className="px-3 py-2 text-xs text-[var(--fg-soft)]" data-mono>{s.email}</td>
+                  <td className="px-3 py-2">
+                    {s.filiere?.code ? <span className="code-chip">{s.filiere.code}</span> : <span className="text-xs text-[var(--fg-muted)]">-</span>}
                   </td>
-                  <td className="px-3 py-3">
+                  <td className="px-3 py-2 text-xs text-[var(--fg-muted)]" data-mono>{s.niveau ?? '-'}</td>
+                  <td className="px-3 py-2">
                     <Badge variant={statusVariant[s.status] ?? "default"}>
                       {s.status}
                     </Badge>
                   </td>
-                  <td className="px-6 py-3">
-                    <div className="flex flex-wrap justify-end gap-2">
-                      <StudentStatusButton
-                        id={s.id}
-                        status="VALIDATED"
-                        label="Valider"
-                      />
-                      <StudentStatusButton
-                        id={s.id}
-                        status="BLOCKED"
-                        label="Bloquer"
-                      />
+                  <td className="px-3 py-2">
+                    <div className="flex flex-wrap justify-end gap-1.5">
+                      <StudentStatusButton id={s.id} status="VALIDATED" label="Valider" />
+                      <StudentStatusButton id={s.id} status="BLOCKED" label="Bloquer" />
                     </div>
                   </td>
                 </tr>
@@ -88,7 +88,7 @@ export default async function AdminStudentsPage() {
             </tbody>
           </table>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

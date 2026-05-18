@@ -1,77 +1,75 @@
-import { GraduationCap, Heart, Mail } from 'lucide-react'
 import Link from 'next/link'
 
 export function Footer() {
-    const columns: Array<
-        [string, [string, string], [string, string], [string, string]]
-    > = [
+    const columns: Array<[string, Array<[string, string]>]> = [
         [
-            'Plateforme',
-            ['Documents', '/documents'],
-            ['Filieres', '/filieres'],
-            ['Deposer', '/documents/upload'],
+            'plateforme',
+            [
+                ['documents', '/documents'],
+                ['filieres', '/filieres'],
+                ['deposer', '/documents/upload'],
+            ],
         ],
         [
-            'Ressources',
-            ['Cours', '/documents?type=COURS'],
-            ['TP', '/documents?type=TP'],
-            ['Anciens sujets', '/documents?type=ANCIEN_SUJET'],
+            'ressources',
+            [
+                ['cours', '/documents?type=COURS'],
+                ['tp', '/documents?type=TP'],
+                ['td', '/documents?type=TD'],
+                ['anciens-sujets', '/documents?type=ANCIEN_SUJET'],
+            ],
         ],
         [
-            'ESTM Dakar',
-            ['Filiere technique', '/filieres?sector=TECH'],
-            ['Filiere gestion', '/filieres?sector=MGMT'],
-            ['Travaux Diriges', '/documents?type=TD'],
+            'estm',
+            [
+                ['filieres tech', '/filieres?sector=TECH'],
+                ['filieres gestion', '/filieres?sector=MGMT'],
+                ['estm.sn', 'https://www.estm.sn'],
+            ],
         ],
         [
-            'Support',
-            ['Profil', '/profile'],
-            ['Connexion', '/login'],
-            ['Inscription', '/register'],
+            'compte',
+            [
+                ['connexion', '/login'],
+                ['inscription', '/register'],
+                ['profil', '/profile'],
+                ['a propos', '/about'],
+            ],
         ],
     ]
     return (
-        <footer className="relative mt-auto overflow-hidden border-t border-[var(--border)] bg-[var(--bg-soft)]">
-            <div className="pointer-events-none absolute inset-x-0 -top-32 h-64 bg-mesh opacity-50" />
-            <div className="relative mx-auto max-w-7xl px-4 py-14">
-                <div className="grid gap-10 lg:grid-cols-[1.4fr_3fr]">
+        <footer className="mt-auto border-t border-[var(--border)] bg-[var(--bg-soft)]">
+            <div className="mx-auto max-w-6xl px-4 py-10">
+                <div className="grid gap-8 lg:grid-cols-[1.5fr_3fr]">
                     <div>
                         <Link
                             href="/"
-                            className="inline-flex items-center gap-2.5 text-lg font-bold text-[var(--fg)]"
+                            data-mono
+                            className="text-sm font-semibold text-[var(--fg)]"
                         >
-                            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[image:linear-gradient(135deg,#7c3aed,#6d28d9_50%,#06b6d4)] text-white shadow-md">
-                                <GraduationCap size={20} />
-                            </span>
-                            ESTM <span className="text-gradient">DocHub</span>
+                            ESTM/dochub
                         </Link>
-                        <p className="mt-4 max-w-sm text-sm leading-relaxed text-[var(--fg-soft)]">
-                            La plateforme communautaire des etudiants de l&apos;ESTM Dakar.
-                            Cours, TP, TD et anciens sujets organises par filiere et niveau.
+                        <p className="mt-3 max-w-xs text-sm leading-relaxed text-[var(--fg-soft)]">
+                            Plateforme de partage de cours, TP, TD et anciens sujets pour les étudiants de l&apos;École Supérieure de Technologie et de Management de Dakar.
                         </p>
-                        <div className="mt-5 flex items-center gap-3">
-                            <a
-                                href="mailto:contact@estm.sn"
-                                className="grid h-9 w-9 place-items-center rounded-lg border border-[var(--border)] bg-[var(--bg-elev)] text-[var(--fg-soft)] transition hover:border-[var(--primary)] hover:text-[var(--primary)]"
-                                aria-label="Email"
-                            >
-                                <Mail size={15} />
-                            </a>
-                        </div>
+                        <p data-mono className="mt-4 text-xs text-[var(--fg-muted)]">
+                            v0.1.0 · 2026
+                        </p>
                     </div>
 
-                    <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-                        {columns.map(([title, ...items]) => (
+                    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                        {columns.map(([title, items]) => (
                             <div key={title}>
-                                <h3 className="mb-3 text-[11px] font-bold uppercase tracking-[0.15em] text-[var(--fg-muted)]">
+                                <h3 data-mono className="mb-3 text-xs font-medium text-[var(--fg-muted)]">
                                     {title}
                                 </h3>
-                                <div className="grid gap-2.5 text-sm text-[var(--fg-soft)]">
+                                <div className="grid gap-1.5 text-sm text-[var(--fg-soft)]">
                                     {items.map(([label, href]) => (
                                         <Link
                                             key={label}
+                                            data-mono
                                             href={href}
-                                            className="w-fit transition-colors hover:text-[var(--primary)]"
+                                            className="w-fit text-xs transition-colors hover:text-[var(--fg)]"
                                         >
                                             {label}
                                         </Link>
@@ -82,21 +80,20 @@ export function Footer() {
                     </div>
                 </div>
 
-                <div className="mt-10 flex flex-col items-center justify-between gap-2 border-t border-[var(--border)] pt-6 text-xs text-[var(--fg-muted)] sm:flex-row">
-                    <p className="flex items-center gap-1.5">
-                        <span>&copy; 2026 ESTM DocHub.</span>
-                        <span className="hidden sm:inline">Cree avec</span>
-                        <Heart
-                            size={12}
-                            className="hidden fill-rose-500 text-rose-500 sm:inline animate-pulse-soft"
-                        />
-                        <span className="hidden sm:inline">par l&apos;Amicale des etudiants Tchadiens.</span>
+                <div className="mt-8 flex flex-col items-start justify-between gap-2 border-t border-[var(--border)] pt-5 text-xs text-[var(--fg-muted)] sm:flex-row sm:items-center">
+                    <p data-mono>
+                        © 2026 ESTM DocHub · Amicale des étudiants Tchadiens
                     </p>
-                    <p>
-                        Developpe par{' '}
-                        <span className="font-semibold text-[var(--fg-soft)]">
+                    <p data-mono>
+                        dev{' '}
+                        <a
+                            href="https://github.com/gourbalissakh"
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-[var(--fg-soft)] hover:text-[var(--fg)] underline-offset-2 hover:underline"
+                        >
                             @Gourbal2026
-                        </span>
+                        </a>
                     </p>
                 </div>
             </div>
