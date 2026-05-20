@@ -1,12 +1,4 @@
-import {
-    DocumentType,
-    Niveau,
-    PrismaClient,
-    Role,
-    Sector,
-    UserStatus,
-} from '@prisma/client'
-import bcrypt from 'bcryptjs'
+import { PrismaClient, Sector } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -119,74 +111,7 @@ async function main() {
         ),
     )
 
-    const admin = await prisma.user.create({
-        data: {
-            email: 'admin@estm.sn',
-            passwordHash: await bcrypt.hash('Admin123!', 12),
-            firstName: 'Admin',
-            lastName: 'ESTM',
-            role: Role.ADMIN,
-            status: UserStatus.VALIDATED,
-        },
-    })
-
-    await Promise.all(
-        Array.from({ length: 5 }).map((_, index) =>
-            prisma.user.create({
-                data: {
-                    email: `etudiant${index + 1}@estm.sn`,
-                    passwordHash: bcrypt.hashSync('Student123!', 12),
-                    firstName: `Etudiant${index + 1}`,
-                    lastName: 'Test',
-                    studentNumber: `ESTM-2026-00${index + 1}`,
-                    status:
-                        index === 4 ? UserStatus.PENDING : UserStatus.VALIDATED,
-                    filiereId: createdFilieres[index].id,
-                    niveau: [
-                        Niveau.L1,
-                        Niveau.L2,
-                        Niveau.L3,
-                        Niveau.M1,
-                        Niveau.M2,
-                    ][index],
-                    anneeAcademique: '2025-2026',
-                },
-            }),
-        ),
-    )
-
-    for (let index = 0; index < createdFilieres.length; index += 1) {
-        const filiere = createdFilieres[index]
-        await prisma.document.create({
-            data: {
-                title: `${['Cours', 'Ancien sujet', 'TP', 'TD'][index % 4]} ${filiere.code}`,
-                description: `Ressource academique de demonstration pour ${filiere.name}.`,
-                filePath: 'placeholder://no-file',
-                fileSize: 96,
-                fileType: 'application/pdf',
-                filiereId: filiere.id,
-                type: [
-                    DocumentType.COURS,
-                    DocumentType.ANCIEN_SUJET,
-                    DocumentType.TP,
-                    DocumentType.TD,
-                ][index % 4],
-                niveau: [Niveau.L1, Niveau.L2, Niveau.L3, Niveau.M1, Niveau.M2][
-                    index % 5
-                ],
-                anneeAcademique: '2025-2026',
-                matiere: [
-                    'Algorithmique',
-                    'Comptabilite',
-                    'Reseaux',
-                    'Management',
-                ][index % 4],
-                uploaderId: admin.id,
-                downloadCount: index * 3,
-            },
-        })
-    }
-
+    void createdFilieres
 }
 
 main()

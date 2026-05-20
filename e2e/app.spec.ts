@@ -40,8 +40,8 @@ test.afterEach(async ({ page }) => {
 
 async function login(page: Page, email: string, password: string) {
   await page.goto("/login");
-  await page.getByPlaceholder("admin@estm.sn").fill(email);
-  await page.getByPlaceholder("********").fill(password);
+  await page.getByPlaceholder("prenom.nom@estm.sn").fill(email);
+  await page.getByPlaceholder("••••••••").fill(password);
   await page.getByRole("button", { name: "Se connecter" }).click();
   await page.waitForURL(/\/(admin|documents)$/, { timeout: 15_000 });
 }

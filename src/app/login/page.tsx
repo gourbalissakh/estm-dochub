@@ -66,7 +66,7 @@ export default function LoginPage() {
               <Input
                 name="email"
                 type="email"
-                placeholder="admin@estm.sn"
+                placeholder="prenom.nom@estm.sn"
                 required
                 className="pl-9"
               />
@@ -118,9 +118,6 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <p data-mono className="mt-4 text-center text-[10px] text-[var(--fg-muted)]">
-        demo: admin@estm.sn / Admin123!
-      </p>
     </div>
   );
 }
