@@ -12,6 +12,7 @@
     "test:e2e": "playwright test",
     "prisma": "prisma",
     "seed": "prisma db seed",
+    "seed:admin": "tsx prisma/create-admin.ts",
     "postinstall": "prisma generate"
   },
   "prisma": {
