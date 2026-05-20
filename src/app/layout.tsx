@@ -35,6 +35,9 @@ export const metadata: Metadata = {
     authors: [
         { name: "Amicale des etudiants Tchadiens a l'ESTM" },
     ],
+    icons: {
+        icon: '/icon.svg',
+    },
     openGraph: {
         title: 'ESTM DocHub',
         description:
