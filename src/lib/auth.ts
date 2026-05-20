@@ -20,9 +20,13 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email.toLowerCase() },
           include: { filiere: true },
         });
-        if (!user || user.status !== UserStatus.VALIDATED) return null;
+        if (!user || user.status === UserStatus.BLOCKED) return null;
         const ok = await bcrypt.compare(credentials.password, user.passwordHash);
         if (!ok) return null;
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { lastLoginAt: new Date(), loginCount: { increment: 1 } },
+        });
         return {
           id: user.id,
           email: user.email,
@@ -67,12 +71,12 @@ export function getCurrentSession() {
 
 export async function requireValidatedUser() {
   const session = await getCurrentSession();
-  if (!session?.user || session.user.status !== UserStatus.VALIDATED) return null;
+  if (!session?.user || session.user.status === UserStatus.BLOCKED) return null;
   const exists = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { id: true, status: true },
   });
-  if (!exists || exists.status !== UserStatus.VALIDATED) return null;
+  if (!exists || exists.status === UserStatus.BLOCKED) return null;
   return session;
 }
 

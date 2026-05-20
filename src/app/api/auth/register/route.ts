@@ -1,3 +1,4 @@
+import { UserStatus } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
@@ -23,6 +24,7 @@ export async function POST(request: NextRequest) {
       niveau: data.niveau,
       anneeAcademique: data.anneeAcademique,
       avatarUrl: data.avatarUrl || null,
+      status: UserStatus.VALIDATED,
     },
     select: { id: true, email: true, status: true },
   });

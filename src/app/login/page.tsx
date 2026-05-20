@@ -26,7 +26,7 @@ export default function LoginPage() {
     });
     if (!res?.ok) {
       setBusy(false);
-      setError("Identifiants invalides ou compte pas encore validé.");
+      setError("Identifiants invalides.");
       return;
     }
     const session = await getSession();

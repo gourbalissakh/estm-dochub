@@ -3,6 +3,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/prisma";
 
+export const revalidate = 60;
+
 export default async function HomePage() {
   const [filieres, documents, counts] = await Promise.all([
     prisma.filiere.findMany({

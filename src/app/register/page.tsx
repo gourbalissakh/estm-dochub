@@ -105,14 +105,14 @@ export default function RegisterPage() {
             <Check size={20} />
           </div>
           <h1 className="mt-4 text-base font-semibold tracking-tight text-[var(--fg)]">
-            Inscription envoyée
+            Compte créé
           </h1>
           <p className="mt-2 text-sm text-[var(--fg-soft)]">
-            Votre compte est en attente de validation par un administrateur.
+            Tu peux te connecter dès maintenant.
           </p>
-          <p data-mono className="mt-3 text-xs text-[var(--fg-muted)]">status: PENDING</p>
+          <p data-mono className="mt-3 text-xs text-[var(--fg-muted)]">status: VALIDATED</p>
           <Button asChild className="mt-5">
-            <Link href="/">Retour à l&apos;accueil</Link>
+            <Link href="/login">Se connecter</Link>
           </Button>
         </div>
       </div>

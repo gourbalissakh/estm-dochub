@@ -2,7 +2,7 @@ import { StudentStatusButton } from "@/components/admin/admin-actions";
 import { Badge } from "@/components/ui/badge";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { initials } from "@/lib/utils";
+import { initials, relativeTime } from "@/lib/utils";
 
 const statusVariant: Record<string, "success" | "warn" | "danger"> = {
   VALIDATED: "success",
@@ -15,8 +15,9 @@ export default async function AdminStudentsPage() {
   const students = await prisma.user.findMany({
     where: { role: "STUDENT" },
     include: { filiere: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ lastLoginAt: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
   });
+  const activeCount = students.filter((s) => s.lastLoginAt).length;
   const counts = students.reduce<Record<string, number>>(
     (acc, s) => ({ ...acc, [s.status]: (acc[s.status] ?? 0) + 1 }),
     {},
@@ -32,9 +33,9 @@ export default async function AdminStudentsPage() {
           {students.length} compte{students.length > 1 ? 's' : ''} étudiant{students.length > 1 ? 's' : ''}
         </p>
         <div className="mt-3 flex flex-wrap gap-1.5">
-          <Badge variant="success">VALIDATED · {counts.VALIDATED ?? 0}</Badge>
-          <Badge variant="warn">PENDING · {counts.PENDING ?? 0}</Badge>
-          <Badge variant="danger">BLOCKED · {counts.BLOCKED ?? 0}</Badge>
+          <Badge variant="success">ACTIFS · {activeCount}</Badge>
+          <Badge variant="warn">JAMAIS CONNECTÉS · {students.length - activeCount}</Badge>
+          <Badge variant="danger">BLOQUÉS · {counts.BLOCKED ?? 0}</Badge>
         </div>
       </div>
 
@@ -47,6 +48,8 @@ export default async function AdminStudentsPage() {
                 <th className="px-3 py-2 text-left font-medium">email</th>
                 <th className="px-3 py-2 text-left font-medium">filière</th>
                 <th className="px-3 py-2 text-left font-medium">niv.</th>
+                <th className="px-3 py-2 text-left font-medium">dernière connexion</th>
+                <th className="px-3 py-2 text-left font-medium">connexions</th>
                 <th className="px-3 py-2 text-left font-medium">status</th>
                 <th className="px-3 py-2 text-right font-medium">actions</th>
               </tr>
@@ -72,6 +75,10 @@ export default async function AdminStudentsPage() {
                     {s.filiere?.code ? <span className="code-chip">{s.filiere.code}</span> : <span className="text-xs text-[var(--fg-muted)]">-</span>}
                   </td>
                   <td className="px-3 py-2 text-xs text-[var(--fg-muted)]" data-mono>{s.niveau ?? '-'}</td>
+                  <td className="px-3 py-2 text-xs text-[var(--fg-soft)]" data-mono>
+                    {relativeTime(s.lastLoginAt)}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-[var(--fg-muted)] tabular-nums" data-mono>{s.loginCount}</td>
                   <td className="px-3 py-2">
                     <Badge variant={statusVariant[s.status] ?? "default"}>
                       {s.status}
@@ -79,8 +86,11 @@ export default async function AdminStudentsPage() {
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex flex-wrap justify-end gap-1.5">
-                      <StudentStatusButton id={s.id} status="VALIDATED" label="Valider" />
-                      <StudentStatusButton id={s.id} status="BLOCKED" label="Bloquer" />
+                      {s.status === "BLOCKED" ? (
+                        <StudentStatusButton id={s.id} status="VALIDATED" label="Débloquer" />
+                      ) : (
+                        <StudentStatusButton id={s.id} status="BLOCKED" label="Bloquer" />
+                      )}
                     </div>
                   </td>
                 </tr>

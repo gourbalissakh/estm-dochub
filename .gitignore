@@ -47,3 +47,5 @@ e2e/document-e2e.pdf
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
